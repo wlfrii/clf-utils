@@ -1,28 +1,35 @@
 #ifndef H_WLF_F49F4440_4D9E_4EF7_A091_DA5AB205A6DC
 #define H_WLF_F49F4440_4D9E_4EF7_A091_DA5AB205A6DC
+// #include "log_level.h"
 #include <string>
 #include <cstring>
 #include <queue>
 #include <mutex>
 #include <condition_variable>
 
-class TinyLogger {
+namespace clf {
+namespace log {
+
+class TinyLog {
 public:
-    TinyLogger(const std::string& log_folder);
+    TinyLog(const std::string& log_folder);
 
     /**
-     * @brief Return a default TinyLogger object, with log folder as "tiny_log".
-     * 
-     * @return TinyLogger* 
+     * @brief Return a default TinyLog object, with log folder as "tiny_log".
+     *
+     * @return TinyLog*
      */
-    static TinyLogger* instance();
+    static TinyLog* instance();
 
     /**
      * @brief Add log data.
-     * 
-     * @param log_data 
+     *
+     * @param log_data
      */
     void log(const char* log_data);
+
+
+    void log(const char* file, int line, const char* format, ...);
 
 private:
     void write();
@@ -46,8 +53,9 @@ private:
         char* log_data = (char*)malloc(size);                       \
         snprintf(log_data, size, "[%s][line:%d] " fmt,              \
             filename, __LINE__, ##__VA_ARGS__);                     \
-        TinyLogger::instance()->log(log_data);                      \
+        TinyLog::instance()->log(log_data);                      \
         free(log_data);                                             \
     } while (0)
 
+}} // namespace clf::log
 #endif /* H_WLF_F49F4440_4D9E_4EF7_A091_DA5AB205A6DC */

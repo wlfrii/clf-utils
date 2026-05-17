@@ -1,12 +1,37 @@
-#ifndef H_WLF_C05FD2D7_2A71_45B0_977A_8A521C5A0D80
-#define H_WLF_C05FD2D7_2A71_45B0_977A_8A521C5A0D80
+/**
+ *  @file   timer.h
+ *  @brief  Commonly used function interfaces such as timing and timestamp printing.
+ *  @author Longfei Wang
+ *  @date   2019.12
+ *
+ *  Copyright (c) 2024-now Longfei Wang
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ *  software and associated documentation files (the "Software"), to deal in the Software
+ *  without restriction, including without limitation the rights to use, copy, modify,
+ *  merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ *  permit persons to whom the Software is furnished to do so, subject to the following
+ *  conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all copies
+ *  or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ *  INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ *  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ *  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ *  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ **/
+#ifndef H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827
+#define H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827
 #include <chrono>
 #include <ctime>
 #include <string>
 
-namespace vision {
+namespace clf {
 namespace timer {
-    
+
 /** Timepoint and clock for latency test */
 using SteadyClock     = std::chrono::steady_clock;
 using SystemClock     = std::chrono::system_clock;
@@ -92,7 +117,12 @@ std::string getCurrentMinuteStr();
  */
 std::string getCurrentTimeStr();
 
-}  // namespace mtimer
+/**
+ * @brief Get the current time string in HHMMSS\:CCC format.
+ */
+std::string getCurrentClockStr();
+
+}  // namespace clf
 }  // namespace vision
 
 /**
@@ -130,4 +160,4 @@ std::string getCurrentTimeStr();
         }                                                                  \
     } while (0)
 
-#endif /* H_WLF_C05FD2D7_2A71_45B0_977A_8A521C5A0D80 */
+#endif /* H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827 */

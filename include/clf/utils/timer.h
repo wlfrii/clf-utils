@@ -103,27 +103,30 @@ float durationSince(const SteadyTimePoint& start_time_point);
 float durationSince(const SystemTimePoint& start_time_point);
 
 /**
- * @brief Get the current date string in YYYYmmdd format.
+ * @brief Definition of commonly used time string format.
  */
-std::string getCurrentDateStr();
+enum Format {
+    YYYYmmdd,                   ///< Such as 20260516
+    YYYY_mm_dd,                 ///< Such as 2026-05-16
+    YYYYmmdd_HHMM,              ///< Such as 20260516_1218
+    YYYYmmdd_HHMMSS,            ///< Such as 20260516_121856
+    YYYYmmdd_HHMMSS_CCC,        ///< Such as 20260516_121856_698
+    YYYY_mm_dd_HH_MM_SS,        ///< Such as 2026-05-16-12-18-56
+    HHMMSS,                     ///< Such as 121856
+    HHMMSS_CCC,                 ///< Such as 121856_698
+    HH_MM_SS_CCC                ///< Such as 12:18:56.698
+};
 
 /**
- * @brief Get the current time string in YYYYmmdd_HHMM format.
+ * @brief Return current time string.
+ * 
+ * @param format The specified format.
+ * @return std::string 
  */
-std::string getCurrentMinuteStr();
+std::string currentTimeStr(Format format);
 
-/**
- * @brief Get the current time string in YYYYmmdd_HHMMSS_CCC format.
- */
-std::string getCurrentTimeStr();
-
-/**
- * @brief Get the current time string in HHMMSS\:CCC format.
- */
-std::string getCurrentClockStr();
-
+}  // namespace timer
 }  // namespace clf
-}  // namespace vision
 
 /**
  * @brief A macro for counting function time comsumption.

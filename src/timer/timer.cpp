@@ -24,6 +24,8 @@
  *  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 #include <clf/utils/timer.h>
+#include <iomanip>
+#include <sstream>
 
 namespace clf {
 namespace timer {
@@ -50,52 +52,49 @@ float durationSince(const SystemTimePoint& start_time_point) {
     return durationBetween(start_time_point, now);
 }
 
-std::string getCurrentDateStr() {
-    time_t timep;
-    time(&timep);
-    char tmp[ 64 ];
-    strftime(tmp, sizeof(tmp), "%Y%m%d", localtime(&timep));
+std::string currentTimeStr(Format format) {
+    auto now = std::chrono::system_clock::now();
+    time_t t = std::chrono::system_clock::to_time_t(now);
+    tm local_tm = *std::localtime(&t);
 
-    return std::string(tmp);
-}
+    auto ms = std::chrono::duration_cast<Milliseconds>(now.time_since_epoch()) % 1000;
 
-std::string getCurrentMinuteStr() {
-    time_t timep;
-    time(&timep);
-    char tmp[ 64 ];
-    strftime(tmp, sizeof(tmp), "%Y%m%d_%H%M", localtime(&timep));
+    std::ostringstream oss;
 
-    return std::string(tmp);
-}
+    switch (format) {
+        case Format::YYYYmmdd:
+            oss << std::put_time(&local_tm, "%Y%m%d");
+            break;
+        case Format::YYYY_mm_dd:
+            oss << std::put_time(&local_tm, "%Y-%m-%d");
+            break;
+        case Format::YYYYmmdd_HHMM:
+            oss << std::put_time(&local_tm, "%Y%m%d_%H%M");
+            break;
+        case Format::YYYYmmdd_HHMMSS:
+            oss << std::put_time(&local_tm, "%Y%m%d_%H%M%S");
+            break;
+        case Format::YYYYmmdd_HHMMSS_CCC:
+            oss << std::put_time(&local_tm, "%Y%m%d_%H%M%S")
+                << "_" << std::setw(3) << std::setfill('0') << ms.count();
+            break;
+        case Format::YYYY_mm_dd_HH_MM_SS:
+            oss << std::put_time(&local_tm, "%Y-%m-%d-%H-%M-%S");
+            break;
+        case Format::HHMMSS:
+            oss << std::put_time(&local_tm, "%H%M%S");
+            break;
+        case Format::HHMMSS_CCC:
+            oss << std::put_time(&local_tm, "%H%M%S")
+                << std::setw(3) << std::setfill('0') << ms.count();
+            break;
+        case Format::HH_MM_SS_CCC:
+            oss << std::put_time(&local_tm, "%H:%M:%S")
+                << "." << std::setw(3) << std::setfill('0') << ms.count();
+            break;
+    }
 
-std::string getCurrentTimeStr() {
-    time_t timep;
-    time(&timep);
-    char tmp[ 64 ];
-    strftime(tmp, sizeof(tmp), "%Y%m%d_%H%M%S", localtime(&timep));
-
-    auto     now = SystemClock::now();
-    uint64_t cms = std::chrono::duration_cast<Milliseconds>(now.time_since_epoch()).count()
-                    - std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() * 1000;
-    char strms[ 32 ];
-    sprintf(strms, "_%03ld", cms);
-
-    return std::string(tmp) + strms;
-}
-
-std::string getCurrentClockStr() {
-    time_t timep;
-    time(&timep);
-    char tmp[ 64 ];
-    strftime(tmp, sizeof(tmp), "%H%M%S", localtime(&timep));
-
-    auto     now = SystemClock::now();
-    uint64_t cms = std::chrono::duration_cast<Milliseconds>(now.time_since_epoch()).count()
-                    - std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() * 1000;
-    char strms[ 32 ];
-    sprintf(strms, ":%03ld", cms);
-
-    return std::string(tmp) + strms;
+    return oss.str();
 }
 
 }  // namespace timer

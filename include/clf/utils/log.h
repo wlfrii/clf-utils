@@ -25,53 +25,73 @@
  **/
 #ifndef H_CLF_B48BA4D5_9B80_4BC0_A4E2_BCD07B5E7DDF
 #define H_CLF_B48BA4D5_9B80_4BC0_A4E2_BCD07B5E7DDF
+#include <cstdint>
+#include <string>
 
 namespace clf {
 namespace log {
 
-// #define CLF_LOG_FATAL    SR_LOG_FATAL
-// #define CLF_LOG_ERROR    SR_LOG_ERROR
-// #define CLF_LOG_WARNING  SR_LOG_WARNING
-// #define CLF_LOG_NOTICE   SR_LOG_NOTICE
-// #define CLF_LOG_DEBUG    SR_LOG_DEBUG
-// #define CLF_LOG_TRACE    SR_LOG_TRACE
+/** Enable the log to file. */
+// #define CLF_LOG_TO_FILE
 
-// /** Assert */
-// #define CLF_ASSERT(condition, msg, ...)                              \
-//     do {                                                                \
-//         if (!(condition)) {                                             \
-//             VISION_LOG_FATAL("Assertion failed: " msg,  ##__VA_ARGS__); \
-//             std::exit(EXIT_FAILURE);                                    \
-//         }                                                               \
-//     } while (0)
+/**
+ * @brief The default folder to store the log files.
+ */
+const std::string DEFAULT_LOG_FOLDER = "clf-log";
 
-// #define SIMU_LOG_FATAL(fmt, ...)   SIMU_LOG(fatal, fmt, ##__VA_ARGS__)
-// #define SIMU_LOG_ERROR(fmt, ...)   SIMU_LOG(error, fmt, ##__VA_ARGS__)
-// #define SIMU_LOG_WARNING(fmt, ...) SIMU_LOG(warning, fmt, ##__VA_ARGS__)
-// #define SIMU_LOG_NOTICE(fmt, ...)  SIMU_LOG(notice, fmt, ##__VA_ARGS__)
-// #define SIMU_LOG_DEBUG(fmt, ...)   SIMU_LOG(debug, fmt, ##__VA_ARGS__)
-// #define SIMU_LOG_TRACE(fmt, ...)   SIMU_LOG(trace, fmt, ##__VA_ARGS__)
+/**
+ * @brief Log level definition.
+ */
+enum class Level : uint8_t {
+    FATAL,      ///< For fatal error level, identified as [F].
+    ERROR,      ///< For error level, identified as [E].
+    WARNING,    ///< For warning level, identified as [W].
+    DEBUG,      ///< For debug level, identified as [D].
+    TRACE       ///< For trace level, identified as [T].
+};
 
-// /**
-//  * @brief Initiliaze loger for given module.
-//  *
-//  * @param module_name The module name.
-//  */
-// void initModuleLog(const char* module_name = nullptr);
-
-// /**
-//  * @brief Change output log level
-//  *
-//  * @param log_level The spdlog level.
-//  */
-// void changeVisionLogLevel(U8 log_level);
-
-// /**
-//  * @brief Change output log level
-//  *
-//  * @param log_level The spdlog level.
-//  */
-// void changeSimulationLogLevel(U8 log_level);
+/**
+ * @brief CLF log interface.
+ * 
+ * @param level The level of the log.
+ * @param file The file to log.
+ * @param line The line of the file to log.
+ * @param format The log format.
+ * @param ... The arguments for the format.
+ */
+void log(Level level, const char* file, int line, bool tofile, const char* format, ...);
 
 }}  // namespace clf::log
+
+/**
+ * @brief The CLF log definition.
+ */
+#ifdef CLF_LOG_TO_FILE
+#define CLF_LOG(LOG_LEVEL, FMT, ...) \
+    clf::log::log(LOG_LEVEL, __FILE__, __LINE__, true, FMT, ##__VA_ARGS__)
+#else
+#define CLF_LOG(LOG_LEVEL, FMT, ...) \
+    clf::log::log(LOG_LEVEL, __FILE__, __LINE__, false, FMT, ##__VA_ARGS__)
+#endif
+
+/**
+ * @brief Commonly used log definition.
+ */
+#define CLF_LOG_FATAL(FMT, ...)    CLF_LOG(clf::log::Level::FATAL, FMT, ##__VA_ARGS__)
+#define CLF_LOG_ERROR(FMT, ...)    CLF_LOG(clf::log::Level::ERROR, FMT, ##__VA_ARGS__)
+#define CLF_LOG_WARNING(FMT, ...)  CLF_LOG(clf::log::Level::WARNING, FMT, ##__VA_ARGS__)
+#define CLF_LOG_DEBUG(FMT, ...)    CLF_LOG(clf::log::Level::DEBUG, FMT, ##__VA_ARGS__)
+#define CLF_LOG_TRACE(FMT, ...)    CLF_LOG(clf::log::Level::TRACE, FMT, ##__VA_ARGS__)
+
+/**
+ * @brief Assert definition.
+ */
+#define CLF_ASSERT(CONDITION, MSG, ...)                                 \
+    do {                                                                \
+        if (!(CONDITION)) {                                             \
+            CLF_LOG_FATAL("Assertion failed: " MSG,  ##__VA_ARGS__);    \
+            std::exit(EXIT_FAILURE);                                    \
+        }                                                               \
+    } while (0)
+
 #endif /* H_CLF_B48BA4D5_9B80_4BC0_A4E2_BCD07B5E7DDF */

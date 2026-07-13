@@ -28,6 +28,7 @@
 #include <chrono>
 #include <ctime>
 #include <string>
+#include <vector>
 
 namespace clf {
 namespace timer {
@@ -119,9 +120,9 @@ enum Format {
 
 /**
  * @brief Return current time string.
- * 
+ *
  * @param format The specified format.
- * @return std::string 
+ * @return std::string
  */
 std::string currentTimeStr(Format format);
 
@@ -130,37 +131,27 @@ std::string currentTimeStr(Format format);
 
 /**
  * @brief A macro for counting function time comsumption.
- * \param FUNC  The function to be timed
- * \param DURATION  The time duration tolerance
- * \param FMT, ...  The message to be printed if the time comsumption greater
+ * @param FUNC  The function to be timed
+ * @param ITERATIONS  The iteration times.
+ * @param MSG, ...  The message to be printed if the time comsumption greater
  *                  than the DURATION
  */
-#define MMATH_TIMER_COUNT_VOID_FUNC_TIME(FUNC, DURATION, FMT, ...)  \
-    do {                                                            \
-        auto start = vision::mtimer::getCurrentTimePoint();         \
-        FUNC;                                                       \
-        float ms = vision::mtimer::durationSince(start);            \
-        if (ms > DURATION) {                                        \
-            printf("[%.4f ms] elapsed:\t " FMT, ms, ##__VA_ARGS__); \
-        }                                                           \
-    } while (0)
-
-/**
- * @brief A macro for counting function time comsumption.
- * \param FUNC  The function to be timed
- * \param DURATION  The time duration tolerance
- * \param RET  The returned value from FUNC
- * \param FMT, ...  The message to be printed if the time comsumption greater
- *                  than the DURATION
- */
-#define MMATH_TIMER_COUNT_NONVOID_FUNC_TIME(FUNC, DURATION, RET, FMT, ...) \
-    do {                                                                   \
-        auto start = vision::mtimer::getCurrentTimePoint();                \
-        RET        = FUNC;                                                 \
-        float ms   = vision::mtimer::durationSince(start);                 \
-        if (ms > DURATION) {                                               \
-            printf("[%.4f ms] elapsed:\t " FMT, ms, ##__VA_ARGS__);        \
-        }                                                                  \
+#define CLF_TIMER_ITER_COUNT_VOID_FUNC_TIME(FUNC, ITERATIONS, MSG, ...)     \
+    do {                                                                    \
+        auto t_start = clf::timer::getCurrentTimePoint();                   \
+        float total_ms = 0, min_ms = 1e10f, max_ms = -1;                    \
+        for(uint16_t i = 0; i < ITERATIONS; i++) {                          \
+            t_start = clf::timer::getCurrentTimePoint();                    \
+            FUNC;                                                           \
+            float ms = clf::timer::durationSince(t_start);                  \
+            total_ms += ms;                                                 \
+            if(ms < min_ms) min_ms = ms;                                    \
+            else if(ms > max_ms) max_ms = ms;                               \
+        }                                                                   \
+        float mean_ms = total_ms / static_cast<float>(ITERATIONS);          \
+        CLF_LOG_DEBUG(MSG "\n  Iteration [%d] times, average runtime=[%.4f]"\
+                      "ms, ranged in [%.4f, %.4f]", ITERATIONS,             \
+                      mean_ms, min_ms, max_ms, ##__VA_ARGS__);              \
     } while (0)
 
 #endif /* H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827 */

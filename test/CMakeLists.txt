@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
 set(LIB_NAME "clf-utils")
 project(test-${LIB_NAME})

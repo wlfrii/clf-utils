@@ -138,9 +138,10 @@ std::string currentTimeStr(Format format);
  */
 #define CLF_TIMER_ITER_COUNT_VOID_FUNC_TIME(FUNC, ITERATIONS, MSG, ...)     \
     do {                                                                    \
+        size_t iterations = static_cast<size_t>(ITERATIONS);                \
         auto t_start = clf::timer::getCurrentTimePoint();                   \
         float total_ms = 0, min_ms = 1e10f, max_ms = -1;                    \
-        for(uint16_t i = 0; i < ITERATIONS; i++) {                          \
+        for(size_t i = 0; i < iterations; i++) {                            \
             t_start = clf::timer::getCurrentTimePoint();                    \
             FUNC;                                                           \
             float ms = clf::timer::durationSince(t_start);                  \
@@ -148,9 +149,9 @@ std::string currentTimeStr(Format format);
             if(ms < min_ms) min_ms = ms;                                    \
             else if(ms > max_ms) max_ms = ms;                               \
         }                                                                   \
-        float mean_ms = total_ms / static_cast<float>(ITERATIONS);          \
-        CLF_LOG_DEBUG(MSG "\n  Iteration [%d] times, average runtime=[%.4f]"\
-                      "ms, ranged in [%.4f, %.4f]", ITERATIONS,             \
+        float mean_ms = total_ms / static_cast<float>(iterations);          \
+        CLF_LOG_DEBUG(MSG "\n  Iteration [%ld] times, average runtime"      \
+                      "=[%f] ms, ranged in [%f, %f] ms", iterations,        \
                       mean_ms, min_ms, max_ms, ##__VA_ARGS__);              \
     } while (0)
 

@@ -25,7 +25,9 @@
  **/
 #ifndef H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827
 #define H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827
+#include <clf/utils/log.h>
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <string>
 #include <vector>
@@ -80,11 +82,11 @@ float durationBetween(const SystemTimePoint& t_start, const SystemTimePoint& t_e
  * from the other functions only in what argument(s) it accepts.
  *
  * @param [in] start_time_point The start time point returned by
- * 						        mmath::timer::getCurrentTimePoint().
+ *                              clf::timer::getCurrentTimePoint().
  *
  * @return The time duration represented by std::chrono::milliseconds
  *
- * @see vision::mtimer::getCurrentTimePoint().
+ * @see clf::timer::getCurrentTimePoint().
  */
 float durationSince(const SteadyTimePoint& start_time_point);
 
@@ -95,11 +97,11 @@ float durationSince(const SteadyTimePoint& start_time_point);
  * from the other functions only in what argument(s) it accepts.
  *
  * @param [in] start_time_point The start time point returned by
- * 						        mmath::timer::getCurrentTimePoint().
+ *                              clf::timer::getCurrentTimePoint().
  *
  * @return The time duration represented by std::chrono::milliseconds
  *
- * @see vision::mtimer::getCurrentTimePoint().
+ * @see clf::timer::getCurrentTimePoint().
  */
 float durationSince(const SystemTimePoint& start_time_point);
 
@@ -130,12 +132,13 @@ std::string currentTimeStr(Format format);
 }  // namespace clf
 
 /**
- * @brief A macro for counting function time comsumption.
+ * @brief A macro for counting function time consumption.
  * @param FUNC  The function to be timed
  * @param ITERATIONS  The iteration times.
- * @param MSG, ...  The message to be printed if the time comsumption greater
+ * @param MSG, ...  The message to be printed with the timing result.
  *                  than the DURATION
  */
+<<<<<<< HEAD
 #define CLF_TIMER_ITER_COUNT_VOID_FUNC_TIME(FUNC, ITERATIONS, MSG, ...)     \
     do {                                                                    \
         size_t iterations = static_cast<size_t>(ITERATIONS);                \
@@ -153,6 +156,27 @@ std::string currentTimeStr(Format format);
         CLF_LOG_DEBUG(MSG "\n  Iteration [%ld] times, average runtime"      \
                       "=[%f] ms, ranged in [%f, %f] ms", iterations,        \
                       mean_ms, min_ms, max_ms, ##__VA_ARGS__);              \
+=======
+#define CLF_TIMER_ITER_COUNT_VOID_FUNC_TIME(FUNC, ITERATIONS, MSG, ...)         \
+    do {                                                                        \
+        auto t_start = clf::timer::getCurrentTimePoint();                       \
+        float total_ms = 0, min_ms = 1e10f, max_ms = -1;                        \
+        const auto iteration_count = static_cast<uint64_t>(ITERATIONS);         \
+        CLF_ASSERT(iteration_count > 0, "ITERATIONS must be greater than 0");   \
+        for(uint64_t i = 0; i < iteration_count; ++i) {                         \
+            t_start = clf::timer::getCurrentTimePoint();                        \
+            FUNC;                                                               \
+            float ms = clf::timer::durationSince(t_start);                      \
+            total_ms += ms;                                                     \
+            if(ms < min_ms) min_ms = ms;                                        \
+            if(ms > max_ms) max_ms = ms;                                        \
+        }                                                                       \
+        float mean_ms = total_ms / static_cast<float>(iteration_count);         \
+        CLF_LOG_DEBUG(MSG "\n  Iteration [%llu] times, average runtime=[%.4f]"  \
+                      "ms, ranged in [%.4f, %.4f]",                             \
+                      static_cast<unsigned long long>(iteration_count),         \
+                      mean_ms, min_ms, max_ms, ##__VA_ARGS__);                  \
+>>>>>>> e6fed90 (update with the optim from codex)
     } while (0)
 
 #endif /* H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827 */

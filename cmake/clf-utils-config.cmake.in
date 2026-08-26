@@ -1,11 +1,13 @@
-get_filename_component(clf-utils_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+@PACKAGE_INIT@
 
-if(NOT TARGET clf-utils)
-    include("${clf-utils_CMAKE_DIR}/clf-utils-targets.cmake")
+include(CMakeFindDependencyMacro)
+find_dependency(Threads REQUIRED)
+
+if(NOT TARGET clf-utils::clf-utils)
+    include("${CMAKE_CURRENT_LIST_DIR}/clf-utils-targets.cmake")
 endif()
 
-set(clf-utils_LIBRARIES clf-utils)
-set(clf-utils_VERSION @PROJECT_VERSION@)
-set(clf-utils_FOUND TRUE)
+set(clf-utils_LIBRARIES clf-utils::clf-utils)
+set(clf-utils_VERSION "@PROJECT_VERSION@")
 
-message(STATUS "Found clf-utils: clf-utils_LIBRARIES: ${clf-utils_LIBRARIES} (version ${clf-utils_VERSION})")
+check_required_components("clf-utils")

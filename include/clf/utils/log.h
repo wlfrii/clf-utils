@@ -25,6 +25,7 @@
  **/
 #ifndef H_CLF_B48BA4D5_9B80_4BC0_A4E2_BCD07B5E7DDF
 #define H_CLF_B48BA4D5_9B80_4BC0_A4E2_BCD07B5E7DDF
+#include <cstdlib>
 #include <cstdint>
 #include <string>
 
@@ -37,7 +38,7 @@ namespace log {
 /**
  * @brief The default folder to store the log files.
  */
-const std::string DEFAULT_LOG_FOLDER = "clf-log";
+inline const std::string DEFAULT_LOG_FOLDER = "clf-log";
 
 /**
  * @brief Log level definition.

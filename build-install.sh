@@ -1,18 +1,22 @@
-#!/bin/bash
-clear
+#!/usr/bin/env bash
+set -euo pipefail
 
-function build_vision_usage() {
-    echo ">>> BUILD clf-project: usage: $0 [-x][-t]"
-    echo "    [-x] denotes that clear the cache and rebuild test project"
-    echo "    [-t] denotes that build corresponding test project"
+project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+install_dir="${project_root}/../install"
+cd "$project_root"
+
+build_usage() {
+    echo ">>> BUILD clf-utils: usage: $0 [-x] [-t]"
+    echo "    [-x] clears existing build directories before building"
+    echo "    [-t] builds the corresponding test project"
 }
-build_vision_usage $0
+build_usage
 
 build_dir="build"
 need_rebuild=false
 need_build_test=false
 while getopts "xt" opt; do
-    case $opt in
+    case "$opt" in
         x)
             need_rebuild=true
             echo ">>> BUILD in clean mode."
@@ -28,29 +32,23 @@ while getopts "xt" opt; do
     esac
 done
 
-if [ $need_rebuild == "true" ]; then
-    project_name="$(cat ${build_dir}/project_name.txt)"
-    echo "Start to clear and rebuild ${project_name}"
-    rm -r "${build_dir}/"
-
+if [[ "$need_rebuild" == "true" && -d "$build_dir" ]]; then
+    echo "Start a clean rebuild of clf-utils"
+    cmake -E remove_directory "$build_dir"
 fi
 
 # Build project
-cmake -B "${build_dir}/" || exit 1
-cd "${build_dir}/"
-make -j8 || exit 1
-make install
-cd ../
+cmake -S . -B "$build_dir" -DCMAKE_INSTALL_PREFIX="$install_dir"
+cmake --build "$build_dir" --parallel
+cmake --install "$build_dir"
 
 # Check whether need to build corresponding test project.
-if [ $need_build_test == "true" ]; then
-    cd ./test/
-
-    if [ $need_rebuild == "true" ]; then
-        rm -r "${build_dir}/"
+if [[ "$need_build_test" == "true" ]]; then
+    test_build_dir="test/$build_dir"
+    if [[ "$need_rebuild" == "true" && -d "$test_build_dir" ]]; then
+        cmake -E remove_directory "$test_build_dir"
     fi
 
-    cmake -B "${build_dir}/" || exit 1
-    cd "${build_dir}/"
-    make || exit 1
+    cmake -S test -B "$test_build_dir"
+    cmake --build "$test_build_dir" --parallel
 fi

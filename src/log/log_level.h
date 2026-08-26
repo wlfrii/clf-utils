@@ -1,25 +1,20 @@
 #ifndef H_CLF_C34E641A_6748_4294_8D7E_8E17E62CEC98
 #define H_CLF_C34E641A_6748_4294_8D7E_8E17E62CEC98
 #include <clf/utils/log.h>
-#include <unordered_map>
 
 namespace clf {
 namespace log {
 
-inline const char logIdentifier(Level level) {
-    static const std::unordered_map<Level, char> map = {
-        { Level::FATAL,     'F' },
-        { Level::ERROR,     'E' },
-        { Level::WARNING ,  'W' },
-        { Level::DEBUG ,    'D' },
-        { Level::TRACE ,    'T' } 
-    };
-    auto it = map.find( level );
-    if ( it != map.end() ) {
-        return it->second;
+inline char logIdentifier(Level level) noexcept {
+    switch (level) {
+        case Level::FATAL:   return 'F';
+        case Level::ERROR:   return 'E';
+        case Level::WARNING: return 'W';
+        case Level::DEBUG:   return 'D';
+        case Level::TRACE:   return 'T';
     }
-    return '0';
-};
+    return '?';
+}
 
 }} // namespace clf::log
 

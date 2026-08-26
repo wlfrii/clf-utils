@@ -54,8 +54,13 @@ float durationSince(const SystemTimePoint& start_time_point) {
 
 std::string currentTimeStr(Format format) {
     auto now = std::chrono::system_clock::now();
-    time_t t = std::chrono::system_clock::to_time_t(now);
-    tm local_tm = *std::localtime(&t);
+    const std::time_t t = std::chrono::system_clock::to_time_t(now);
+    std::tm local_tm{};
+#if defined(_WIN32)
+    localtime_s(&local_tm, &t);
+#else
+    localtime_r(&t, &local_tm);
+#endif
 
     auto ms = std::chrono::duration_cast<Milliseconds>(now.time_since_epoch()) % 1000;
 

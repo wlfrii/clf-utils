@@ -3,10 +3,8 @@
 #include <clf/utils/timer.h>
 #include <thread>
 
-void testWriteLogThread(int id) {
-    int count = 0;
-    while(true) {
-        ++count;
+void testWriteLogThread(int id, int iterations) {
+    for (int count = 1; count <= iterations; ++count) {
         CLF_LOG_DEBUG("Thread %d writes %d times log information.", id, count);
         std::this_thread::sleep_for(std::chrono::milliseconds(4));
     }
@@ -33,17 +31,18 @@ int main(int argc, char* argv[]) {
 
 
     // Test multi-thread.
-    std::thread thread1 = std::thread(&testWriteLogThread, 1);
-    thread1.detach();
+    std::thread thread1(&testWriteLogThread, 1, 100);
 
-    std::thread thread2 = std::thread(&testWriteLogThread, 2);
-    thread2.detach();
+    std::thread thread2(&testWriteLogThread, 2, 100);
 
     int count = 0;
     while(++count < 101) {
         CLF_LOG_DEBUG("Main thread writes %d times log information.", count);
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
+
+    thread1.join();
+    thread2.join();
 
     return 0;
 }

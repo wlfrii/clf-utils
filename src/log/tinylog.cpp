@@ -6,35 +6,52 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <utility>
 
 namespace clf {
 namespace log {
 
 // -----------------------------------------------------------------------------------
 
-TinyLog::TinyLog(const std::string log_folder)
+TinyLog::TinyLog(const std::string& log_folder)
     : _log_folder(log_folder) {
 
     // Create the log folder first.
-    fs::createPathIfNotExists(_log_folder);
+    if (!fs::createPathIfNotExists(_log_folder)) {
+        std::fprintf(stderr, "Cannot create log directory: %s\n", _log_folder.c_str());
+        std::exit(EXIT_FAILURE);
+    }
 
     // Open the file handle for write out log data.
     updateFileName();
 
     std::ofstream ofile(_filename, std::ios_base::out | std::ios_base::app);
     if(!ofile.is_open()) {
-        fprintf(stderr, "Cannot open output file\n");
+        std::fprintf(stderr, "Cannot open output file: %s\n", _filename.c_str());
         std::exit(EXIT_FAILURE);
     }
     ofile.close();
 
-    std::thread thread = std::thread(&TinyLog::write, this);
-    thread.detach();
+    _worker = std::thread(&TinyLog::write, this);
 }
 
-void TinyLog::log(const char* log_data) {
+TinyLog::~TinyLog() {
     {
         std::lock_guard<std::mutex> lock(_mutex);
+        _stopping = true;
+    }
+    _cv.notify_all();
+    if (_worker.joinable()) {
+        _worker.join();
+    }
+}
+
+void TinyLog::log(const std::string& log_data) {
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        if (_stopping) {
+            return;
+        }
         _log_queue.push(log_data);
     }
     _cv.notify_one();
@@ -46,14 +63,27 @@ void TinyLog::updateFileName() {
 }
 
 void TinyLog::write() {
-    while(true) {
-        std::unique_lock<std::mutex> lock(_mutex);
-        _cv.wait(lock, [this] { return !_log_queue.empty(); });
+    while (true) {
+        std::string log_data;
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            _cv.wait(lock, [this] { return _stopping || !_log_queue.empty(); });
+            if (_log_queue.empty()) {
+                if (_stopping) {
+                    break;
+                }
+                continue;
+            }
+            log_data = std::move(_log_queue.front());
+            _log_queue.pop();
+        }
 
         std::ofstream ofile(_filename, std::ios_base::out | std::ios_base::app);
-        ofile << _log_queue.front() << '\n';
-        _log_queue.pop();
-        ofile.close();
+        if (!ofile.is_open()) {
+            std::fprintf(stderr, "Cannot open output file: %s\n", _filename.c_str());
+            continue;
+        }
+        ofile << log_data << '\n';
 
         checkFileSize();
     }

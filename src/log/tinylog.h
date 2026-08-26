@@ -4,6 +4,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include <thread>
 #include <clf/utils/log.h>
 
 namespace clf {
@@ -16,14 +17,22 @@ public:
      * 
      * @param log_folder The folder to store the log files.
      */
-    TinyLog(const std::string log_folder);
+    explicit TinyLog(const std::string& log_folder);
+
+    /** Flush queued messages and stop the writer thread. */
+    ~TinyLog();
+
+    TinyLog(const TinyLog&) = delete;
+    TinyLog& operator=(const TinyLog&) = delete;
+    TinyLog(TinyLog&&) = delete;
+    TinyLog& operator=(TinyLog&&) = delete;
 
     /**
      * @brief CLF log interface.
      * 
      * @param log_data The information to log.
      */
-    void log(const char* log_data);
+    void log(const std::string& log_data);
 
 private:
     /** Update log file name. */    
@@ -41,6 +50,8 @@ private:
     std::queue<std::string> _log_queue;
     std::mutex  _mutex;
     std::condition_variable _cv;
+    std::thread _worker;
+    bool _stopping = false;
 };
 
 }} // namespace clf::log

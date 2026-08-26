@@ -5,14 +5,15 @@ namespace clf {
 namespace fs {
 
 bool createPathIfNotExists(const std::string& path) {
-    if (std::filesystem::exists(path)) {
-        return true;
+    std::error_code error;
+    if (std::filesystem::exists(path, error)) {
+        return !error && std::filesystem::is_directory(path, error) && !error;
     }
-    return std::filesystem::create_directories(path);
+    return !error && std::filesystem::create_directories(path, error) && !error;
 }
 
 std::string getFilename(const std::string& filepath) {
-    return std::filesystem::path(filepath).filename();
+    return std::filesystem::path(filepath).filename().string();
 }
 
 }} // namespace clf::fs

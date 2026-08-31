@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 cmake_minimum_required(VERSION 3.20)
-=======
-cmake_minimum_required(VERSION 3.18)
->>>>>>> e6fed90 (update with the optim from codex)
 
 project(clf-utils
         VERSION 1.0.0

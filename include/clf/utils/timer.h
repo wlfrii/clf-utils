@@ -138,25 +138,6 @@ std::string currentTimeStr(Format format);
  * @param MSG, ...  The message to be printed with the timing result.
  *                  than the DURATION
  */
-<<<<<<< HEAD
-#define CLF_TIMER_ITER_COUNT_VOID_FUNC_TIME(FUNC, ITERATIONS, MSG, ...)     \
-    do {                                                                    \
-        size_t iterations = static_cast<size_t>(ITERATIONS);                \
-        auto t_start = clf::timer::getCurrentTimePoint();                   \
-        float total_ms = 0, min_ms = 1e10f, max_ms = -1;                    \
-        for(size_t i = 0; i < iterations; i++) {                            \
-            t_start = clf::timer::getCurrentTimePoint();                    \
-            FUNC;                                                           \
-            float ms = clf::timer::durationSince(t_start);                  \
-            total_ms += ms;                                                 \
-            if(ms < min_ms) min_ms = ms;                                    \
-            else if(ms > max_ms) max_ms = ms;                               \
-        }                                                                   \
-        float mean_ms = total_ms / static_cast<float>(iterations);          \
-        CLF_LOG_DEBUG(MSG "\n  Iteration [%ld] times, average runtime"      \
-                      "=[%f] ms, ranged in [%f, %f] ms", iterations,        \
-                      mean_ms, min_ms, max_ms, ##__VA_ARGS__);              \
-=======
 #define CLF_TIMER_ITER_COUNT_VOID_FUNC_TIME(FUNC, ITERATIONS, MSG, ...)         \
     do {                                                                        \
         auto t_start = clf::timer::getCurrentTimePoint();                       \
@@ -176,7 +157,6 @@ std::string currentTimeStr(Format format);
                       "ms, ranged in [%.4f, %.4f]",                             \
                       static_cast<unsigned long long>(iteration_count),         \
                       mean_ms, min_ms, max_ms, ##__VA_ARGS__);                  \
->>>>>>> e6fed90 (update with the optim from codex)
     } while (0)
 
 #endif /* H_CLF_CA0705D0_992B_4D1A_99DF_D3310FDFF827 */

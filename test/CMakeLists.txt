@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 cmake_minimum_required(VERSION 3.20)
-=======
-cmake_minimum_required(VERSION 3.18)
->>>>>>> e6fed90 (update with the optim from codex)
 
 set(LIB_NAME "clf-utils")
 project(test-${LIB_NAME} LANGUAGES CXX)
